@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./App.css";
 
 function Header({ avatarNames, avatarImg }) {
   return (
@@ -49,10 +50,25 @@ function App() {
     Odlaw: "./images/odlaw.webp",
     Wenda: "./images/wenda.webp",
   });
+
+  const getCoordinates = (e) => {
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    const element = e.currentTarget.getBoundingClientRect();
+    console.log(mouseX);
+    console.log(mouseY);
+    console.log(mouseX - element.left);
+    console.log(mouseY - element.top);
+  };
+
   return (
     <div className="container">
       <Header avatarNames={avatarNames} avatarImg={avatarImg} />
-      <Body avatarNames={avatarNames} avatarImg={avatarImg} />
+      <Body
+        avatarNames={avatarNames}
+        avatarImg={avatarImg}
+        getCoordinates={getCoordinates}
+      />
     </div>
   );
 }
