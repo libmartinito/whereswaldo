@@ -7,7 +7,7 @@ function Header({ avatarNames, avatarImg }) {
       <div className="header__avatars">
         {avatarNames.map((el) => (
           <div className="avatar">
-            <img src={avatarImg[el]} alt="" className="avatar__img" />
+            <img src={avatarImg[el]} alt={el} className="avatar__img" />
             <div className="avatar__name">{el}</div>
           </div>
         ))}
@@ -25,7 +25,7 @@ const SelectionMenu = ({ avatarNames, avatarImg }) => {
     <div className="selection">
       {avatarNames.map((el) => (
         <div className="avatar">
-          <img src={avatarImg[el]} alt="" className="avatar__img" />
+          <img src={avatarImg[el]} alt={el} className="avatar__img" />
           <div className="avatar__name">{el}</div>
         </div>
       ))}
@@ -43,11 +43,11 @@ const Body = ({ avatarNames, avatarImg }) => {
 };
 
 function App() {
-  const [avatarNames] = useState(["Waldo", "Oswald", "Wenda"]);
+  const [avatarNames] = useState(["Waldo", "Odlaw", "Wenda"]);
   const [avatarImg] = useState({
-    Waldo: "./Images",
-    Odlaw: "./Images",
-    Wendy: "./Images",
+    Waldo: "./images/waldo.webp",
+    Odlaw: "./images/odlaw.webp",
+    Wenda: "./images/wenda.webp",
   });
   return (
     <div className="container">
