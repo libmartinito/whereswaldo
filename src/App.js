@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useRef } from "react";
 import "./App.css";
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
@@ -86,8 +86,8 @@ function Mark({ el }) {
       className="mark"
       style={{
         position: "absolute",
-        left: `${el.x}px`,
-        top: `${el.y}px`,
+        left: `${el.x - 40}px`,
+        top: `${el.y - 40}px`,
       }}
     />
   );
@@ -142,18 +142,29 @@ function App() {
   });
 
   const [isMenuHidden, setIsMenuHidden] = useState(true);
-  const [targetLocation, setTargetLocation] = useState({ x: 0, y: 0 });
+  // const [targetLocation, setTargetLocation] = useState({ x: 0, y: 0 });
+  const targetLocation = useRef({ x: 0, y: 0 });
   const [menuLocation, setMenuLocation] = useState({ x: 0, y: 0 });
 
-  const [selected, setSelected] = useState("");
-  const [refCoordinates, setRefCoordinates] = useState({});
-  const [markCoordinates, setMarkCoordinates] = useState([]);
+  // const [selected, setSelected] = useState("");
+  const selected = useRef("");
+  // const [refCoordinates, setRefCoordinates] = useState({});
+  const refCoordinates = useRef({});
+  // const [markCoordinates, setMarkCoordinates] = useState([]);
+  const markCoordinates = useRef([]);
 
   const updateSelected = (e) => {
     const newSelected = e.currentTarget.title;
-    setSelected(newSelected);
+    selected.current = newSelected;
   };
 
+  const updateRefCoordinates = async () => {
+    const docRef = doc(db, "coordinates", selected.current.toLowerCase());
+    const docSnap = await getDoc(docRef);
+    refCoordinates.current = docSnap.data();
+  };
+
+  /*
   useEffect(() => {
     const updateRefCoordinates = async () => {
       const docRef = doc(db, "coordinates", selected.toLowerCase());
@@ -162,7 +173,26 @@ function App() {
     };
     updateRefCoordinates();
   }, [selected]);
+  */
 
+  const updateMarkCoordinates = () => {
+    const location = targetLocation.current;
+    const ref = refCoordinates.current;
+    if (
+      location.x < ref.x &&
+      location.y < ref.y &&
+      location.x + 70 > ref.x &&
+      location.y + 70 > ref.y
+    ) {
+      const newMarkCoordinates = markCoordinates.current;
+      newMarkCoordinates.push(ref);
+
+      markCoordinates.current = newMarkCoordinates;
+    }
+    console.log(markCoordinates);
+  };
+
+  /*
   useEffect(() => {
     if (
       targetLocation.x < refCoordinates.x &&
@@ -176,11 +206,7 @@ function App() {
       setMarkCoordinates(newMarkCoordinates);
     }
   }, [refCoordinates]);
-
-  const handleSelectionClick = (e) => {
-    e.stopPropagation();
-    updateSelected(e);
-  };
+  */
 
   const updateMenuDisplay = () => {
     if (isMenuHidden) {
@@ -188,6 +214,14 @@ function App() {
     } else {
       setIsMenuHidden(true);
     }
+  };
+
+  const handleSelectionClick = async (e) => {
+    e.stopPropagation();
+    updateSelected(e);
+    await updateRefCoordinates();
+    updateMarkCoordinates();
+    updateMenuDisplay();
   };
 
   const updateCoordinates = (e) => {
@@ -198,7 +232,7 @@ function App() {
     const element = e.currentTarget.getBoundingClientRect();
     const newX = x - element.left - 35;
     const newY = y - element.top - 35;
-    setTargetLocation({ x: newX, y: newY });
+    targetLocation.current = { x: newX, y: newY };
     setMenuLocation({ x: newX + 70, y: newY + 35 });
   };
 
@@ -210,11 +244,11 @@ function App() {
         avatarImg={avatarImg}
         handleSelectionClick={handleSelectionClick}
         isMenuHidden={isMenuHidden}
-        targetLocation={targetLocation}
+        targetLocation={targetLocation.current}
         menuLocation={menuLocation}
         updateCoordinates={updateCoordinates}
         updateMenuDisplay={updateMenuDisplay}
-        markCoordinates={markCoordinates}
+        markCoordinates={markCoordinates.current}
       />
     </div>
   );
