@@ -8,6 +8,7 @@
   --neutral-50: #fafafa;
   --red-500: #ef4444;
   --red-500-tr: rgba(239, 68, 68, 0.3);
+  --neutral-300: #d4d4d4;
   font-size: 16px;
   box-sizing: border-box;
 }
@@ -40,6 +41,7 @@
   display: flex;
   overflow-x: scroll;
   position: relative;
+  z-index: 0;
   left: 0;
 }
 
@@ -57,4 +59,30 @@
   height: 70px;
   background-color: var(--red-500-tr);
   border: 5px solid var(--red-500);
+}
+
+.selection {
+  background-color: var(--neutral-50);
+  width: fit-content;
+  padding: 1rem;
+  position: relative;
+  z-index: 1;
+}
+.avatar--selection {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid var(--neutral-300);
+  cursor: pointer;
+}
+.avatar__img--selection {
+  width: 40px;
+  border: 0.5px solid var(--neutral-300);
+}
+
+.mark {
+  width: 80px;
+  height: 80px;
+  background-color: var(--red-500-tr);
+  z-index: 1;
 }
