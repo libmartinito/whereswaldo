@@ -102,7 +102,8 @@
   top: 5rem;
 }
 
-.start-modal {
+.start-modal,
+.end-modal {
   position: fixed;
   z-index: 2;
   top: 0;
@@ -112,7 +113,8 @@
   background-color: var(--neutral-500-tr);
 }
 
-.start-modal__content {
+.start-modal__content,
+.end-modal__content {
   background-color: var(--red-500);
   color: var(--neutral-50);
   margin: 10% auto;
@@ -136,6 +138,15 @@
 
 .start-modal__input:focus {
   outline: none;
+}
+
+.end-modal__score {
+  font-size: 3rem;
+}
+
+.end-modal__buttons {
+  display: flex;
+  gap: 1rem;
 }
 
 .button {

@@ -155,6 +155,25 @@ function StartModal({ playerName, handlePlayerNameChange, updatePlayerInfo }) {
   );
 }
 
+function EndModal({ duration }) {
+  return (
+    <div className="end-modal">
+      <div className="end-modal__content">
+        <div className="end-modal__copy">You did it! It only took you:</div>
+        <div className="end-modal__score">{duration}s</div>
+        <div className="end-modal__buttons">
+          <button type="button" className="button">
+            Play Again
+          </button>
+          <button type="button" className="button">
+            Leaderboards
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   initializeApp(firebaseConfig);
   const db = getFirestore();
@@ -174,7 +193,10 @@ function App() {
   const markCoordinates = useRef([]);
 
   const [playerName, setPlayerName] = useState("");
-  const [isModalDisplayed, setIsModalDisplayed] = useState(true);
+  const [isStartModalDisplayed, setIsStartModalDisplayed] = useState(true);
+  const [isEndModalDisplayed, setIsEndModalDisplayed] = useState(false);
+
+  const duration = useRef(0);
 
   const updateSelected = (e) => {
     const newSelected = e.currentTarget.title;
@@ -211,12 +233,41 @@ function App() {
     }
   };
 
+  const updateEnd = async () => {
+    const docRef = doc(db, "player", "current");
+    await setDoc(
+      docRef,
+      {
+        end: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  };
+
+  const updateDuration = async () => {
+    const docRef = doc(db, "player", "current");
+    const docSnap = await getDoc(docRef);
+    const start = docSnap.data().start.seconds;
+    const end = docSnap.data().end.seconds;
+    const newDuration = end - start;
+    duration.current = newDuration;
+  };
+
+  const handleGameEnd = async () => {
+    if (markCoordinates.current.length === 3) {
+      await updateEnd();
+      await updateDuration();
+      setIsEndModalDisplayed(true);
+    }
+  };
+
   const handleSelectionClick = async (e) => {
     e.stopPropagation();
     updateSelected(e);
     await updateRefCoordinates();
     updateMarkCoordinates();
     updateMenuDisplay();
+    await handleGameEnd();
   };
 
   const updateCoordinates = (e) => {
@@ -242,7 +293,7 @@ function App() {
       name: playerName,
       start: serverTimestamp(),
     });
-    setIsModalDisplayed(false);
+    setIsStartModalDisplayed(false);
   };
 
   return (
@@ -259,13 +310,14 @@ function App() {
         updateMenuDisplay={updateMenuDisplay}
         markCoordinates={markCoordinates.current}
       />
-      {isModalDisplayed ? (
+      {isStartModalDisplayed ? (
         <StartModal
           playerName={playerName}
           handlePlayerNameChange={handlePlayerNameChange}
           updatePlayerInfo={handlePlayClick}
         />
       ) : null}
+      {isEndModalDisplayed ? <EndModal duration={duration.current} /> : null}
     </div>
   );
 }
