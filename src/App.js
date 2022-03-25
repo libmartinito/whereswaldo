@@ -8,6 +8,8 @@ import {
   getDocs,
   collection,
   addDoc,
+  query,
+  orderBy,
   setDoc,
   serverTimestamp,
 } from "firebase/firestore";
@@ -369,7 +371,7 @@ function App() {
 
   const handleLeaderboardsClick = async () => {
     const colRef = collection(db, "leaderboards");
-    const querySnapshot = await getDocs(colRef);
+    const querySnapshot = await getDocs(query(colRef, orderBy("duration")));
     const newLeaderboards = {};
     querySnapshot.forEach((document) => {
       const docName = document.data().name;
