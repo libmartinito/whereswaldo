@@ -5,6 +5,9 @@ import {
   getFirestore,
   doc,
   getDoc,
+  getDocs,
+  collection,
+  addDoc,
   setDoc,
   serverTimestamp,
 } from "firebase/firestore";
@@ -155,21 +158,73 @@ function StartModal({ playerName, handlePlayerNameChange, updatePlayerInfo }) {
   );
 }
 
-function EndModal({ duration }) {
+function Result({ duration, handlePlayAgainClick, handleLeaderboardsClick }) {
+  return (
+    <div className="end-modal__content">
+      <div className="end-modal__copy">You did it! It only took you:</div>
+      <div className="end-modal__score">{duration}s</div>
+      <div className="end-modal__buttons">
+        <button type="button" className="button" onClick={handlePlayAgainClick}>
+          Play Again
+        </button>
+        <button
+          type="button"
+          className="button"
+          onClick={handleLeaderboardsClick}
+        >
+          Leaderboards
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Leaderboards({ leaderboards, handleBackClick }) {
+  const leaderboardNames = Object.keys(leaderboards);
+  return (
+    <div className="end-modal__content">
+      <div className="end-modal__title">Leaderboards</div>
+      <div className="end-modal__leaderboards">
+        {leaderboardNames.map((el, i) => (
+          <div className="end-modal__leaderboards-item">
+            <div className="end-modal__player-name">
+              {i + 1}. {el}
+            </div>
+            <div className="end-modal__player-duration">
+              {leaderboards[el]}s
+            </div>
+          </div>
+        ))}
+      </div>
+      <button type="button" className="button" onClick={handleBackClick}>
+        Back
+      </button>
+    </div>
+  );
+}
+
+function EndModal({
+  duration,
+  handlePlayAgainClick,
+  handleLeaderboardsClick,
+  isResultsDisplayed,
+  leaderboards,
+  handleBackClick,
+}) {
   return (
     <div className="end-modal">
-      <div className="end-modal__content">
-        <div className="end-modal__copy">You did it! It only took you:</div>
-        <div className="end-modal__score">{duration}s</div>
-        <div className="end-modal__buttons">
-          <button type="button" className="button">
-            Play Again
-          </button>
-          <button type="button" className="button">
-            Leaderboards
-          </button>
-        </div>
-      </div>
+      {isResultsDisplayed ? (
+        <Result
+          duration={duration}
+          handlePlayAgainClick={handlePlayAgainClick}
+          handleLeaderboardsClick={handleLeaderboardsClick}
+        />
+      ) : (
+        <Leaderboards
+          leaderboards={leaderboards}
+          handleBackClick={handleBackClick}
+        />
+      )}
     </div>
   );
 }
@@ -197,6 +252,9 @@ function App() {
   const [isEndModalDisplayed, setIsEndModalDisplayed] = useState(false);
 
   const duration = useRef(0);
+
+  const [isResultsDisplayed, setIsResultDisplayed] = useState(true);
+  const [leaderboards, setLeaderboards] = useState({});
 
   const updateSelected = (e) => {
     const newSelected = e.currentTarget.title;
@@ -253,10 +311,19 @@ function App() {
     duration.current = newDuration;
   };
 
+  const updateLeaderboards = async () => {
+    const colRef = collection(db, "leaderboards");
+    await addDoc(colRef, {
+      name: playerName,
+      duration: duration.current,
+    });
+  };
+
   const handleGameEnd = async () => {
     if (markCoordinates.current.length === 3) {
       await updateEnd();
       await updateDuration();
+      await updateLeaderboards();
       setIsEndModalDisplayed(true);
     }
   };
@@ -296,6 +363,27 @@ function App() {
     setIsStartModalDisplayed(false);
   };
 
+  const handlePlayAgainClick = () => {
+    window.location.reload();
+  };
+
+  const handleLeaderboardsClick = async () => {
+    const colRef = collection(db, "leaderboards");
+    const querySnapshot = await getDocs(colRef);
+    const newLeaderboards = {};
+    querySnapshot.forEach((document) => {
+      const docName = document.data().name;
+      const docDuration = document.data().duration;
+      newLeaderboards[docName] = docDuration;
+    });
+    setLeaderboards(newLeaderboards);
+    setIsResultDisplayed(false);
+  };
+
+  const handleBackClick = () => {
+    setIsResultDisplayed(true);
+  };
+
   return (
     <div className="container">
       <Header avatarNames={avatarNames} avatarImg={avatarImg} />
@@ -317,7 +405,16 @@ function App() {
           updatePlayerInfo={handlePlayClick}
         />
       ) : null}
-      {isEndModalDisplayed ? <EndModal duration={duration.current} /> : null}
+      {isEndModalDisplayed ? (
+        <EndModal
+          duration={duration.current}
+          handlePlayAgainClick={handlePlayAgainClick}
+          handleLeaderboardsClick={handleLeaderboardsClick}
+          isResultsDisplayed={isResultsDisplayed}
+          leaderboards={leaderboards}
+          handleBackClick={handleBackClick}
+        />
+      ) : null}
     </div>
   );
 }

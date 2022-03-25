@@ -144,6 +144,17 @@
   font-size: 3rem;
 }
 
+.end-modal__leaderboards {
+  max-width: 300px;
+  overflow-y: scroll;
+  padding: 0rem 1rem;
+}
+
+.end-modal__leaderboards-item {
+  display: flex;
+  gap: 3rem;
+}
+
 .end-modal__buttons {
   display: flex;
   gap: 1rem;
