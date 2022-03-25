@@ -1,7 +1,13 @@
 import React, { useState, useRef } from "react";
 import "./App.css";
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDVzIojoTLRP5le_jTHiKO5b--9LOCduaQ",
@@ -131,6 +137,24 @@ function Body({
   );
 }
 
+function StartModal({ playerName, handlePlayerNameChange, updatePlayerInfo }) {
+  return (
+    <div className="start-modal">
+      <div className="start-modal__content">
+        <div className="start-modal__copy">Please enter your name.</div>
+        <input
+          className="start-modal__input"
+          value={playerName}
+          onChange={handlePlayerNameChange}
+        />
+        <button type="button" className="button" onClick={updatePlayerInfo}>
+          Play
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   initializeApp(firebaseConfig);
   const db = getFirestore();
@@ -142,16 +166,15 @@ function App() {
   });
 
   const [isMenuHidden, setIsMenuHidden] = useState(true);
-  // const [targetLocation, setTargetLocation] = useState({ x: 0, y: 0 });
   const targetLocation = useRef({ x: 0, y: 0 });
   const [menuLocation, setMenuLocation] = useState({ x: 0, y: 0 });
 
-  // const [selected, setSelected] = useState("");
   const selected = useRef("");
-  // const [refCoordinates, setRefCoordinates] = useState({});
   const refCoordinates = useRef({});
-  // const [markCoordinates, setMarkCoordinates] = useState([]);
   const markCoordinates = useRef([]);
+
+  const [playerName, setPlayerName] = useState("");
+  const [isModalDisplayed, setIsModalDisplayed] = useState(true);
 
   const updateSelected = (e) => {
     const newSelected = e.currentTarget.title;
@@ -163,17 +186,6 @@ function App() {
     const docSnap = await getDoc(docRef);
     refCoordinates.current = docSnap.data();
   };
-
-  /*
-  useEffect(() => {
-    const updateRefCoordinates = async () => {
-      const docRef = doc(db, "coordinates", selected.toLowerCase());
-      const docSnap = await getDoc(docRef);
-      setRefCoordinates(docSnap.data());
-    };
-    updateRefCoordinates();
-  }, [selected]);
-  */
 
   const updateMarkCoordinates = () => {
     const location = targetLocation.current;
@@ -189,24 +201,7 @@ function App() {
 
       markCoordinates.current = newMarkCoordinates;
     }
-    console.log(markCoordinates);
   };
-
-  /*
-  useEffect(() => {
-    if (
-      targetLocation.x < refCoordinates.x &&
-      targetLocation.y < refCoordinates.y &&
-      targetLocation.x + 70 > refCoordinates.x &&
-      targetLocation.y + 70 > refCoordinates.y
-    ) {
-      const newMarkCoordinates = markCoordinates;
-      newMarkCoordinates.push(refCoordinates);
-
-      setMarkCoordinates(newMarkCoordinates);
-    }
-  }, [refCoordinates]);
-  */
 
   const updateMenuDisplay = () => {
     if (isMenuHidden) {
@@ -236,6 +231,20 @@ function App() {
     setMenuLocation({ x: newX + 70, y: newY + 35 });
   };
 
+  const handlePlayerNameChange = (e) => {
+    const name = e.target.value;
+    setPlayerName(name);
+  };
+
+  const handlePlayClick = async () => {
+    const docRef = doc(db, "player", "current");
+    await setDoc(docRef, {
+      name: playerName,
+      start: serverTimestamp(),
+    });
+    setIsModalDisplayed(false);
+  };
+
   return (
     <div className="container">
       <Header avatarNames={avatarNames} avatarImg={avatarImg} />
@@ -250,6 +259,13 @@ function App() {
         updateMenuDisplay={updateMenuDisplay}
         markCoordinates={markCoordinates.current}
       />
+      {isModalDisplayed ? (
+        <StartModal
+          playerName={playerName}
+          handlePlayerNameChange={handlePlayerNameChange}
+          updatePlayerInfo={handlePlayClick}
+        />
+      ) : null}
     </div>
   );
 }
