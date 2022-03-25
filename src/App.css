@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap");
 * {
   padding: 0;
   margin: 0;
@@ -13,16 +14,28 @@
   --neutral-500-tr: rgba(115, 115, 115, 0.3);
   --neutral-300: #d4d4d4;
   font-size: 16px;
+  line-height: 1.15;
+  letter-spacing: 0.5px;
+  font-family: "EB Garamond", serif;
   box-sizing: border-box;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background-color: var(--red-500);
   color: var(--neutral-50);
   padding: 1rem 2rem;
   width: 100vw;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.header__title {
+  font-size: 2.5rem;
 }
 
 .header__avatars {
@@ -42,6 +55,7 @@
 .body {
   width: 100vw;
   display: flex;
+  margin-top: 114.1px;
   overflow-x: scroll;
   position: relative;
   z-index: 0;
@@ -132,6 +146,7 @@
   border-bottom: 2px solid var(--neutral-50);
   background-color: var(--red-500);
   font-size: 1.5rem;
+  font-family: "EB Garamond", serif;
   color: var(--neutral-50);
   text-align: center;
 }
@@ -152,7 +167,8 @@
 
 .end-modal__leaderboards-item {
   display: flex;
-  gap: 3rem;
+  width: 200px;
+  justify-content: space-between;
 }
 
 .end-modal__buttons {
@@ -166,4 +182,6 @@
   color: var(--neutral-50);
   padding: 0.2rem 0.8rem;
   cursor: pointer;
+  font-family: "EB Garamond", serif;
+  font-weight: 700;
 }
