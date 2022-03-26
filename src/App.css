@@ -185,3 +185,26 @@
   font-family: "EB Garamond", serif;
   font-weight: 700;
 }
+
+@media screen and (max-width: 500px) {
+  .header__title {
+    font-size: 2rem;
+  }
+
+  .avatar__img {
+    width: 50px;
+  }
+
+  .body {
+    margin-top: 105.6px;
+  }
+
+  .start-modal__content {
+    margin: 80% auto;
+    width: 90vw;
+  }
+
+  .start-modal__input {
+    width: 100%;
+  }
+}
